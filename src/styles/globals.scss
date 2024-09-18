@@ -1,0 +1,156 @@
+// Importar funciones y variables de Bootstrap
+$modal-animation-duration: 0.5s;
+$modal-transform-start: scale(0.5);
+$modal-transform-end: scale(1);
+
+.fade .modal-dialog {
+  animation: customModalFadeOut $modal-animation-duration forwards;
+}
+
+.fade.show .modal-dialog {
+  animation: customModalFadeIn $modal-animation-duration forwards;
+}
+
+// Definir las animaciones usando @keyframes
+@keyframes customModalFadeIn {
+  from {
+    opacity: 0;
+    transform: $modal-transform-start;
+  }
+  to {
+    opacity: 1;
+    transform: $modal-transform-end;
+  }
+}
+
+@keyframes customModalFadeOut {
+  from {
+    opacity: 1;
+    transform: $modal-transform-end;
+  }
+  to {
+    opacity: 0;
+    transform: $modal-transform-start;
+  }
+}
+
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+
+// Sobrescribir la variable $theme-colors para añadir un nuevo color
+$theme-colors: (
+  "primary": $primary,
+  // Color predeterminado de Bootstrap
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+  "azul": #1e3c70,
+  "dorado": #bd8c01,
+  "light-dorado": #dba100,
+  "gray": #f5f5f7,
+  "light-gray": #f2f2f2,
+);
+
+.mh-100vh {
+  min-height: 100vh;
+}
+
+.box-200 {
+  width: 200px;
+  height: 200px;
+}
+
+@import "node_modules/bootstrap/scss/mixins";
+@import "node_modules/bootstrap/scss/bootstrap";
+
+/* styles/globals.css */
+.hover-scale {
+  transition: transform 0.3s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02); /* Escala al 110% en hover */
+}
+
+/* Estilos para el botón de Scroll to Top */
+.scroll-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  height: 50px;
+  width: 50px;
+  background-color: #007bff; /* Color de fondo */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: white; /* Color del ícono */
+  z-index: 1000;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  opacity: 0; /* Inicialmente oculto */
+  visibility: hidden; /* No es visible inicialmente */
+}
+
+.scroll-to-top.visible {
+  opacity: 1; /* Visible cuando tiene la clase visible */
+  visibility: visible; /* Visible cuando tiene la clase visible */
+}
+
+.no-focus-styles:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.login-buttons .active {
+  background-color: #007bff;
+  color: white !important;
+  border: 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.nav {
+  a {
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    margin: 0;
+
+    &:hover {
+      border: 1px solid #007bff;
+    }
+  }
+}
+
+.link-card {
+  width: 100%;
+  text-decoration: none;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.hover{
+  transition: all 0.3s ease;
+}
+
+.hover:hover{
+  transform: scale(1.02);
+  background-color: #f0f0f0 !important;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+}
