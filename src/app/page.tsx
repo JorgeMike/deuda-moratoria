@@ -51,27 +51,36 @@ export default function Home() {
     let suma = paso1; // Acumulador
 
     for (let i = 0; i < meses; i++) {
-      const anioAnterior = currentAnio - 5;
-      
+
       // Obtener los días del mes actual
-      const diasDelMes = getDiasDelMes(currentMes, anioAnterior);
+      let diasDelMes = getDiasDelMes(currentMes, currentAnio);
+
+      if (i === 0) {
+        console.log('Si es el primer mes', startDate);
+        diasDelMes = diasDelMes - startDate.getDate() + 1;
+      }
+
+      if (i === meses - 1) {
+        console.log('Si es el último mes', endDate);
+        diasDelMes = endDate.getDate();
+      }
+
 
       // Obtener el valor de CCP-UDIS para el mes y año actual
-      const ccpUdis = getCCPUdisByMonthYear(currentMes, anioAnterior);
+      const ccpUdis = getCCPUdisByMonthYear(currentMes, currentAnio);
 
       console.log(
-        `Iteración ${
-          i + 1
-        }:\n Año ${anioAnterior}, Mes ${currentMes}, Días del mes: ${diasDelMes}, CCP-UDIS: ${ccpUdis}`
+        `Iteración ${i + 1
+        }:\n Año ${currentAnio}, Mes ${currentMes}, Días del mes: ${diasDelMes}, CCP-UDIS: ${ccpUdis}`
       );
 
       if (ccpUdis) {
         // Multiplicación por los días del mes y el valor de CCP-UDIS
-        
-        const multiplicacion = ((suma * ccpUdis * 0.0125) / 365) * diasDelMes;
-        
+
+        const multiplicacion = ((suma * (ccpUdis / 100) * 0.0125) / 365) * diasDelMes;
+
         console.log(
-          `Multiplicación: ((${suma} * ${ccpUdis} * 0.0125) / 365) * ${diasDelMes} = ${multiplicacion}`
+          `Multiplicación: ((${suma} * ${ccpUdis / 100} * 0.0125) / 365) * ${diasDelMes} = ${multiplicacion}`
         );
 
         suma += multiplicacion;
@@ -90,6 +99,16 @@ export default function Home() {
         currentMes += 1;
       }
     }
+
+    console.log(`Resultado final: ${suma}`);
+
+    // Este resultado es el interes en UDIs
+
+    // Se multiplica por el paso 1 (Suerte principal en UDIs)
+
+    // y este ultimo reusltados se multiplica por las UDIs de la fecha fin
+
+    console.log(`Resultado final: ${suma * udisFin}`);
 
     setRespuesta({
       paso1,
@@ -263,7 +282,7 @@ export default function Home() {
                 <p className="card-text fs-2">
                   {Math.abs(
                     new Date(fechaFin).getTime() -
-                      new Date(fechaInicio).getTime()
+                    new Date(fechaInicio).getTime()
                   ) /
                     (1000 * 60 * 60 * 24)}{" "}
                   dias -{" "}
