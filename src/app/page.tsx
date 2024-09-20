@@ -6,7 +6,9 @@ import cpp from "./data/cpp.json";
 
 export default function Home() {
   const [monto, setMonto] = React.useState<number>(2000000);
-  const [fechaInicio, setFechaInicio] = React.useState<string>("2021-10-09 00:01:00");
+  const [fechaInicio, setFechaInicio] = React.useState<string>(
+    "2021-10-09 00:01:00"
+  );
   const [fechaFin, setFechaFin] = React.useState<string>("2024-08-28 00:01:00");
   const [udisInicio, setUdisInicio] = React.useState<number>(6.939794);
   const [udisFin, setUdisFin] = React.useState<number>(8.251818);
@@ -15,6 +17,16 @@ export default function Home() {
     paso2: 0,
     paso3: 0,
   });
+  const [operaciones, setOperaciones] = React.useState<
+    {
+      mes: string;
+      ccpUdis: number;
+      multiplicacion: number;
+      suma: number;
+      diasDelMes: number;
+      diasAnio: number;
+    }[]
+  >([]);
 
   function getCCPUdisByMonthYear(
     mes: number,
@@ -45,46 +57,68 @@ export default function Home() {
     const meses = calcularMesesTranscurridos(startDate, endDate);
 
     /* Inicializar variables  para la iteracion*/
-    let currentMes = startDate.getMonth() + 1;// Enero es 0, por lo que sumamos 1
+    let currentMes = startDate.getMonth() + 1; // Enero es 0, por lo que sumamos 1
     let currentAnio = startDate.getFullYear();
 
     let suma = paso1; // Acumulador
 
-    for (let i = 0; i < meses; i++) {
+    const operacionesTemp: {
+      mes: string;
+      diasDelMes: number;
+      ccpUdis: number;
+      diasAnio: number;
+      multiplicacion: number;
+      suma: number;
+    }[] = [];
 
+    for (let i = 0; i < meses; i++) {
       // Obtener los días del mes actual
       let diasDelMes = getDiasDelMes(currentMes, currentAnio);
 
       if (i === 0) {
-        console.log('Si es el primer mes', startDate);
+        console.log("Si es el primer mes", startDate);
         diasDelMes = diasDelMes - startDate.getDate() + 1;
       }
 
       if (i === meses - 1) {
-        console.log('Si es el último mes', endDate);
+        console.log("Si es el último mes", endDate);
         diasDelMes = endDate.getDate();
       }
 
+      // Determinar si el año es bisiesto
+      const divisorDias = esBisiesto(currentAnio) ? 366 : 365;
 
       // Obtener el valor de CCP-UDIS para el mes y año actual
       const ccpUdis = getCCPUdisByMonthYear(currentMes, currentAnio);
 
       console.log(
-        `Iteración ${i + 1
-        }:\n Año ${currentAnio}, Mes ${currentMes}, Días del mes: ${diasDelMes}, CCP-UDIS: ${ccpUdis}`
+        `Iteración ${
+          i + 1
+        }:\n Año ${currentAnio}, Mes ${currentMes}, Días del mes: ${diasDelMes}, CCP-UDIS: ${ccpUdis}, Divisor: ${divisorDias}`
       );
 
       if (ccpUdis) {
         // Multiplicación por los días del mes y el valor de CCP-UDIS
-
-        const multiplicacion = ((suma * (ccpUdis / 100) * 0.0125) / 365) * diasDelMes;
+        const multiplicacion =
+          ((suma * (ccpUdis / 100) * 0.0125) / divisorDias) * diasDelMes;
 
         console.log(
-          `Multiplicación: ((${suma} * ${ccpUdis / 100} * 0.0125) / 365) * ${diasDelMes} = ${multiplicacion}`
+          `Multiplicación: ((${suma} * ${
+            ccpUdis / 100
+          } * 0.0125) / ${divisorDias}) * ${diasDelMes} = ${multiplicacion}`
         );
 
         suma += multiplicacion;
 
+        // Guardar los resultados en el array temporal
+        operacionesTemp.push({
+          mes: `${currentAnio}-${currentMes.toString().padStart(2, "0")}`,
+          diasDelMes,
+          ccpUdis,
+          multiplicacion,
+          diasAnio: divisorDias,
+          suma,
+        });
       } else {
         console.error(
           `No se encontró CCP-UDIS para ${currentAnio}-${currentMes}`
@@ -100,6 +134,8 @@ export default function Home() {
       }
     }
 
+    setOperaciones(operacionesTemp);
+
     console.log(`Resultado final: ${suma}`);
 
     // Este resultado es el interes en UDIs
@@ -108,13 +144,15 @@ export default function Home() {
 
     // y este ultimo reusltados se multiplica por las UDIs de la fecha fin
 
-    console.log(`Resultado final: ${suma * udisFin}`);
-
     setRespuesta({
       paso1,
       paso2,
       paso3: suma, // Muestra el acumulado de las multiplicaciones
     });
+  };
+
+  const esBisiesto = (anio: number): boolean => {
+    return (anio % 4 === 0 && anio % 100 !== 0) || anio % 400 === 0;
   };
 
   // Función para obtener los días de un mes considerando los años bisiestos
@@ -280,11 +318,13 @@ export default function Home() {
               <div className="card-body">
                 <h4 className="card-title">Tiempo transcurrido</h4>
                 <p className="card-text fs-2">
-                  {Math.abs(
-                    new Date(fechaFin).getTime() -
-                    new Date(fechaInicio).getTime()
-                  ) /
-                    (1000 * 60 * 60 * 24)}{" "}
+                  {(
+                    Math.abs(
+                      new Date(fechaFin).getTime() -
+                        new Date(fechaInicio).getTime()
+                    ) /
+                    (1000 * 60 * 60 * 24)
+                  ).toFixed(0)}{" "}
                   dias -{" "}
                   {calcularMesesTranscurridos(
                     new Date(fechaInicio),
@@ -328,6 +368,37 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+        <div className="container mt-5">
+          <h3>Detalles de las Operaciones</h3>
+          {operaciones.length > 0 ? (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Días del Mes</th>
+                  <th>CCP Udis</th>
+                  <th>Días del Año</th>
+                  <th>Multiplicación</th>
+                  <th>Suma Acumulada</th>
+                </tr>
+              </thead>
+              <tbody>
+                {operaciones.map((op, index) => (
+                  <tr key={index}>
+                    <td>{op.mes}</td>
+                    <td>{op.diasDelMes}</td>
+                    <td>{op.ccpUdis.toFixed(4)}</td>
+                    <td>{op.diasAnio}</td>
+                    <td>{op.multiplicacion.toFixed(4)}</td>
+                    <td>{op.suma.toFixed(4)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No se han realizado operaciones aún.</p>
+          )}
         </div>
       </div>
     </div>
